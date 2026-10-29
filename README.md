@@ -7,7 +7,7 @@
   <a href="https://github.com/younsabood/truespeech"><img alt="Version 1.0.0" src="https://img.shields.io/badge/version-1.0.0-5b5bd6"></a>
   <img alt="Rust 2024 edition" src="https://img.shields.io/badge/Rust-2024-orange">
   <img alt="Windows x64 DLL" src="https://img.shields.io/badge/Windows-x64-0078D4">
-  <img alt="MIT or Apache 2.0" src="https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue">
+  <img alt="MIT License" src="https://img.shields.io/badge/license-MIT-blue">
 </p>
 
 <p><code>8 kHz mono PCM</code> &nbsp;→&nbsp; <code>240 samples per frame</code> &nbsp;→&nbsp; <code>32-byte packet</code></p>
@@ -23,6 +23,15 @@
 | [Windows integration](docs/windows-abi.md) | Build and call the DLL from C or C++ |
 | [no_std and WebAssembly](docs/wasm.md) | Build and embed the DSP core in a WASM application |
 | [Rendered diagrams](docs/diagrams/README.md) | File map, encoder flow, DLL lifecycle, and function map |
+
+## Open-source project
+
+| Resource | Purpose |
+| --- | --- |
+| [MIT License](LICENSE) | License terms for this project |
+| [Contributing](CONTRIBUTING.md) | How to report issues and submit changes |
+| [Code of Conduct](CODE_OF_CONDUCT.md) | Community participation expectations |
+| [Security policy](SECURITY.md) | How to report a vulnerability privately |
 
 ## What it does
 
@@ -99,4 +108,4 @@ The script stages `truespeech.dll`, its MSVC import library, the C header and ex
 
 ## License
 
-The package metadata declares `MIT OR Apache-2.0`. The repository does not include the canonical license text files yet; add them and confirm the source provenance before making a crates.io release.
+This project is licensed under the [MIT License](LICENSE).

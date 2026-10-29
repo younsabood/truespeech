@@ -40,12 +40,7 @@ try {
     Copy-Item -LiteralPath (Join-Path $projectRoot "README.md") -Destination $distribution -Force
     Copy-Item -LiteralPath (Join-Path $projectRoot "examples\use_dll.c") -Destination $distribution -Force
     Copy-Item -LiteralPath (Join-Path $projectRoot "docs\api.md") -Destination $distribution -Force
-    foreach ($licenseFile in @("LICENSE-MIT", "LICENSE-APACHE")) {
-        $sourceLicense = Join-Path $projectRoot $licenseFile
-        if (Test-Path -LiteralPath $sourceLicense -PathType Leaf) {
-            Copy-Item -LiteralPath $sourceLicense -Destination $distribution -Force
-        }
-    }
+    Copy-Item -LiteralPath (Join-Path $projectRoot "LICENSE") -Destination $distribution -Force
 
     $rustVersion = (& rustc --version).Trim()
     $packageVersion = if ((Get-Content -LiteralPath (Join-Path $projectRoot "Cargo.toml") -Raw) -match '(?m)^version\s*=\s*"([^"]+)"') {
@@ -60,7 +55,7 @@ try {
         "Host: $hostTarget"
         "Build: release"
         ""
-        "Files: truespeech.dll, truespeech.dll.lib, truespeech.h, use_dll.c, README.md, api.md"
+        "Files: truespeech.dll, truespeech.dll.lib, truespeech.h, use_dll.c, README.md, api.md, LICENSE"
     ) | Set-Content -LiteralPath (Join-Path $distribution "BUILD-INFO.txt") -Encoding utf8
 
     Get-ChildItem -LiteralPath $distribution -File |

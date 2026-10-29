@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2024"
 rust-version = "1.88"
 description = "no_std TrueSpeech encoder core shared with the truespeech library"
+license = "MIT"
+repository = "https://github.com/younsabood/truespeech"
 
 [lib]
 crate-type = ["rlib"]
