@@ -1,6 +1,15 @@
 # `truespeech` encoder architecture
 
+<p>
+  <img alt="Stateful audio pipeline" src="https://img.shields.io/badge/pipeline-stateful-7C3AED?style=for-the-badge&amp;logo=rust&amp;logoColor=white">
+  <img alt="Fixed frame size: 240 samples" src="https://img.shields.io/badge/frame-240%20samples-0891B2?style=for-the-badge">
+  <img alt="Fixed packet size: 32 bytes" src="https://img.shields.io/badge/packet-32%20bytes-16A34A?style=for-the-badge">
+</p>
+
 This project turns mono PCM into TrueSpeech frames and exposes the same encoder through Rust, a Windows DLL, WAV helpers, and a standalone `no_std` core. Decoding is outside the library's scope.
+
+> [!IMPORTANT]
+> Keep one `TrueSpeechContext` for each stream. Its predictor and excitation history carries across frames.
 
 ## Implementation map
 
@@ -17,6 +26,15 @@ flowchart TB
     API --> Rust["Rust library and WAV writer"]
     API --> DLL["Windows system-ABI DLL"]
     API --> Core["no_std core, no heap"]
+
+    classDef input fill:#cffafe,stroke:#0891b2,color:#083344,stroke-width:2px
+    classDef dsp fill:#ede9fe,stroke:#7c3aed,color:#24134a,stroke-width:2px
+    classDef packet fill:#dcfce7,stroke:#16a34a,color:#12351f,stroke-width:2px
+    classDef api fill:#dbeafe,stroke:#2563eb,color:#10233f,stroke-width:2px
+    class PCM input
+    class Context,Prepare,LPC,Pitch,Pulses dsp
+    class Pack,Packet packet
+    class API,Rust,DLL,Core api
 ```
 
 ## File responsibilities

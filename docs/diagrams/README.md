@@ -1,8 +1,16 @@
 # Diagrams
 
+<p>
+  <img alt="Rendered on GitHub" src="https://img.shields.io/badge/rendered-GitHub-181717?style=for-the-badge&amp;logo=github&amp;logoColor=white">
+  <img alt="Editable Mermaid sources" src="https://img.shields.io/badge/source-Mermaid-8B5CF6?style=for-the-badge&amp;logo=mermaid&amp;logoColor=white">
+</p>
+
 These diagrams render directly on GitHub. Each one also has an editable Mermaid source (`.mmd`) that was rendered through draw.io.
 
-## Project map
+> [!TIP]
+> The color groups separate inputs, processing stages, outputs, and integration points. The source links open the editable diagram definitions.
+
+## 🗂️ Project map
 
 ```mermaid
 flowchart TD
@@ -13,11 +21,18 @@ flowchart TD
     API --> Header["C header and native example"]
     Build["Release builder"] --> Distribution["Windows x64 distribution"]
     Docs["API and architecture guides"] --> Sources["Editable Mermaid sources"]
+
+    classDef code fill:#dbeafe,stroke:#2563eb,color:#10233f,stroke-width:2px
+    classDef output fill:#dcfce7,stroke:#16a34a,color:#12351f,stroke-width:2px
+    classDef package fill:#fef3c7,stroke:#d97706,color:#451a03,stroke-width:2px
+    class Manifest,API,DSP,Docs,Sources code
+    class Packet,WAV,Header output
+    class Build,Distribution package
 ```
 
 Source: [files-and-apis.mmd](files-and-apis.mmd)
 
-## One-frame encoder algorithm
+## 🧠 One-frame encoder algorithm
 
 ```mermaid
 flowchart TD
@@ -38,17 +53,29 @@ flowchart TD
     More -->|yes| Adaptive
     More -->|no| Pack["Pack eight little-endian words"]
     Pack --> Output["32-byte packet"]
+
+    classDef input fill:#cffafe,stroke:#0891b2,color:#083344,stroke-width:2px
+    classDef analysis fill:#dbeafe,stroke:#2563eb,color:#10233f,stroke-width:2px
+    classDef decision fill:#fef3c7,stroke:#d97706,color:#451a03,stroke-width:2px
+    classDef search fill:#ede9fe,stroke:#7c3aed,color:#24134a,stroke-width:2px
+    classDef output fill:#dcfce7,stroke:#16a34a,color:#12351f,stroke-width:2px
+    class Input input
+    class Scale,Correlation,Quantize,Filter,Weight analysis
+    class Stability,More decision
+    class Pitch,Subframes,Adaptive,Pulses,History search
+    class Pack,Output output
 ```
 
 Source: [encoder-algorithm.mmd](encoder-algorithm.mmd)
 
-## Windows DLL lifecycle
+## 🔁 Windows DLL lifecycle
 
 ```mermaid
 sequenceDiagram
     participant App as Application
     participant ABI as DLL ABI
     participant State as TrueSpeechContext
+    autonumber
     App->>ABI: TrueSpeech_Init(format)
     ABI-->>App: State pointer or NULL
     loop Every 240-sample frame
@@ -65,7 +92,7 @@ sequenceDiagram
 
 Source: [dll-and-wav.mmd](dll-and-wav.mmd)
 
-## Function map
+## 🧩 Function map
 
 ```mermaid
 mindmap
@@ -112,7 +139,7 @@ mindmap
 
 Source: [function-map.mmd](function-map.mmd)
 
-## Read more
+## 🔗 Read more
 
 - [Architecture and source responsibilities](../architecture.md)
 - [Function inputs and outputs](../api.md)

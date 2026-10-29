@@ -1,12 +1,40 @@
 # API and output reference
 
-## Audio contract
+<p>
+  <img alt="Rust API" src="https://img.shields.io/badge/API-Rust-DEA584?style=for-the-badge&amp;logo=rust&amp;logoColor=white">
+  <img alt="C ABI" src="https://img.shields.io/badge/API-C%20ABI-2563EB?style=for-the-badge&amp;logo=c&amp;logoColor=white">
+  <img alt="Packet size: 32 bytes" src="https://img.shields.io/badge/packet-32%20bytes-16A34A?style=for-the-badge">
+</p>
+
+> [!NOTE]
+> The same stateful encoder backs the Rust API, Windows C ABI, and WAV helpers. The output packet is always 32 bytes per frame.
+
+## 🎧 Audio contract
 
 The encoder accepts mono signed 16-bit PCM at 8,000 Hz. One input frame contains 240 samples (30 ms) and produces one 32-byte TrueSpeech packet. The encoder is stateful: keep one context per stream and feed its frames in order. Reset or create a new context when starting a separate stream.
 
 The Rust and C APIs encode packets only. They do not resample, decode, or add a WAV delay-flush packet. The WAV helpers handle padding, RIFF chunks, and the codec's delayed tail.
 
-## Rust API
+```mermaid
+flowchart LR
+    PCM["240 mono i16 samples"] --> Rust["Rust API"]
+    PCM --> C["Windows C ABI"]
+    Rust --> Packet["32-byte packet"]
+    C --> Packet
+    PCM --> WAV["WAV helper"]
+    WAV --> File["RIFF/WAV stream"]
+
+    classDef input fill:#cffafe,stroke:#0891b2,color:#083344,stroke-width:2px
+    classDef api fill:#dbeafe,stroke:#2563eb,color:#10233f,stroke-width:2px
+    classDef packet fill:#ede9fe,stroke:#7c3aed,color:#24134a,stroke-width:2px
+    classDef file fill:#dcfce7,stroke:#16a34a,color:#12351f,stroke-width:2px
+    class PCM input
+    class Rust,C,WAV api
+    class Packet packet
+    class File file
+```
+
+## 🦀 Rust API
 
 The following items are re-exported from the crate root. DSP constants and `pack_bitstream` are also available through the `encoder` module.
 
@@ -28,7 +56,7 @@ The following items are re-exported from the crate root. DSP constants and `pack
 | `write_truespeech_wav(writer, samples)` | Any `Write`, PCM slice | `Ok(())` after writing a complete RIFF/WAV stream. Returns `TrueSpeechWavError` for a RIFF size overflow or writer error. It does not collect all packets in memory. |
 | `encode_truespeech_wav(samples)` | PCM slice | `Ok(Vec<u8>)` containing the complete RIFF/WAV file, or `TooLarge`, `AllocationFailed`, or `Io` error. |
 
-### Error values
+### ⚠️ Error values
 
 `EncodeBufferError` has these variants:
 
@@ -41,13 +69,13 @@ The following items are re-exported from the crate root. DSP constants and `pack
 - `AllocationFailed`: memory reservation failed in the in-memory WAV helper.
 - `Io(error)`: the destination writer returned an I/O error; `source()` exposes it.
 
-## Packet and WAV outputs
+## 📦 Packet and WAV outputs
 
 Each packet is exactly 32 bytes (256 bits), represented as eight 32-bit words packed in little-endian byte order. The Rust packet APIs write bytes into a caller-owned array. The Windows C ABI accepts a pointer to eight `uint32_t` words; on supported Windows targets, their in-memory byte representation is the packet byte stream.
 
 The WAV helpers write a RIFF file with the TrueSpeech format tag `0x0022`, an extended 32-byte `fmt` chunk, a `fact` chunk, and a `data` chunk of complete 32-byte packets. A final partial input frame is padded with zero samples. The `fact` sample count includes the encoder's 60-sample delay. The writer appends a zero frame when needed to flush delayed audio while keeping the declared playback duration aligned with the original input plus that delay.
 
-## Windows C ABI
+## 🪟 Windows C ABI
 
 The declarations and constants are in `include/truespeech.h`. Each function uses the system ABI. Pass one encoder state per stream, and release it exactly once.
 
@@ -61,7 +89,7 @@ The declarations and constants are in `include/truespeech.h`. Each function uses
 
 The state, PCM input, and packet output memory ranges passed to `TrueSpeech_Encod` must not overlap. Every non-null pointer must address the documented readable or writable storage. The C ABI cannot validate arbitrary pointer validity or buffer length.
 
-## Encoder algorithm stages
+## ⚙️ Encoder algorithm stages
 
 The frame path processes four 60-sample subframes. Internal helper names are implementation details; their outputs describe the intermediate data passed to the following stage.
 
@@ -78,7 +106,7 @@ The frame path processes four 60-sample subframes. Internal helper names are imp
 
 The arithmetic helpers `normalize_u32` and `wrapping_abs_i32` return normalized signed values used by the DSP search routines. `FrameParams` contains the quantized LPC, pitch, adaptive-gain, pulse-position, pulse-sign, and interpolation fields for the current frame.
 
-## Related documentation
+## 🔗 Related documentation
 
 - [Quick start](quickstart.md)
 - [Architecture](architecture.md)

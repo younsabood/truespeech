@@ -1,5 +1,14 @@
 # Quick start
 
+<p>
+  <img alt="Rust quick start" src="https://img.shields.io/badge/Rust-quick%20start-E46F00?style=for-the-badge&amp;logo=rust&amp;logoColor=white">
+  <img alt="Input format: 8 kHz mono PCM" src="https://img.shields.io/badge/input-8%20kHz%20mono-0891B2?style=for-the-badge">
+  <img alt="Output: 32-byte packets" src="https://img.shields.io/badge/output-32%20byte%20packets-16A34A?style=for-the-badge">
+</p>
+
+> [!TIP]
+> Reuse the same encoder context for every frame in a stream. Reset it when a new stream starts.
+
 ## Add the dependency
 
 Until the crate is published to crates.io, use the public Git repository:
@@ -30,6 +39,13 @@ flowchart LR
     PCM["240 mono i16 samples"] --> Context["Persistent TrueSpeechContext"]
     Context --> Packet["Caller-owned 32-byte packet"]
     Packet --> Next["Reuse context for next frame"]
+
+    classDef input fill:#cffafe,stroke:#0891b2,color:#083344,stroke-width:2px
+    classDef state fill:#ede9fe,stroke:#7c3aed,color:#24134a,stroke-width:2px
+    classDef output fill:#dcfce7,stroke:#16a34a,color:#12351f,stroke-width:2px
+    class PCM input
+    class Context state
+    class Packet,Next output
 ```
 
 ## Encode a longer slice
