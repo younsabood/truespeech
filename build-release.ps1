@@ -40,6 +40,12 @@ try {
     Copy-Item -LiteralPath (Join-Path $projectRoot "README.md") -Destination $distribution -Force
     Copy-Item -LiteralPath (Join-Path $projectRoot "examples\use_dll.c") -Destination $distribution -Force
     Copy-Item -LiteralPath (Join-Path $projectRoot "docs\api.md") -Destination $distribution -Force
+    $documentation = Join-Path $distribution "docs"
+    New-Item -ItemType Directory -Force -Path $documentation | Out-Null
+    Copy-Item -Path (Join-Path $projectRoot "docs\*") -Destination $documentation -Recurse -Force
+    foreach ($projectDocument in @("CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md")) {
+        Copy-Item -LiteralPath (Join-Path $projectRoot $projectDocument) -Destination $distribution -Force
+    }
     Copy-Item -LiteralPath (Join-Path $projectRoot "LICENSE") -Destination $distribution -Force
 
     $rustVersion = (& rustc --version).Trim()
@@ -55,15 +61,16 @@ try {
         "Host: $hostTarget"
         "Build: release"
         ""
-        "Files: truespeech.dll, truespeech.dll.lib, truespeech.h, use_dll.c, README.md, api.md, LICENSE"
+        "Files: truespeech.dll, truespeech.dll.lib, truespeech.h, use_dll.c, README.md, docs/, CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md, LICENSE"
     ) | Set-Content -LiteralPath (Join-Path $distribution "BUILD-INFO.txt") -Encoding utf8
 
-    Get-ChildItem -LiteralPath $distribution -File |
-        Where-Object { $_.Name -ne "SHA256SUMS.txt" } |
-        Sort-Object Name |
+    Get-ChildItem -LiteralPath $distribution -File -Recurse |
+        Where-Object { $_.FullName -ne (Join-Path $distribution "SHA256SUMS.txt") } |
+        Sort-Object FullName |
         ForEach-Object {
             $hash = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
-            "$hash  $($_.Name)"
+            $relativePath = $_.FullName.Substring($distribution.Length).TrimStart([char[]]@("\", "/")).Replace("\", "/")
+            "$hash  $relativePath"
         } | Set-Content -LiteralPath (Join-Path $distribution "SHA256SUMS.txt") -Encoding ascii
 
     Write-Output "Distribution ready: $distribution"

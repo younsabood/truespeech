@@ -94,7 +94,7 @@ With the Rust MSVC toolchain installed, create the x64 distribution:
 .\build-release.ps1
 ```
 
-The script stages `truespeech.dll`, its import library, `truespeech.h`, a C example, the API reference, the MIT license, build details, and SHA-256 checksums in `dist\windows-x64\`.
+The script stages `truespeech.dll`, its import library, `truespeech.h`, a C example, the full documentation and community guides, the MIT license, build details, and recursive SHA-256 checksums in `dist\windows-x64\`.
 
 ## 📡 Audio format
 

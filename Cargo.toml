@@ -11,12 +11,16 @@ keywords = ["truespeech", "audio", "encoder", "codec", "wav"]
 categories = ["multimedia::audio", "encoding"]
 include = [
     "Cargo.toml",
+    "build-release.ps1",
     "src/lib.rs",
     "src/encoder.rs",
     "src/wav.rs",
     "include/**",
     "examples/**",
     "docs/**",
+    "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT.md",
+    "SECURITY.md",
     "LICENSE",
     "NOTICE*",
 ]
