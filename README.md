@@ -1,28 +1,63 @@
 # TrueSpeech Encoder
 
-`truespeech` is a stateful Rust implementation of the TrueSpeech encoder. It provides a Rust API, a Windows DLL with the `TrueSpeech_*` C ABI, TrueSpeech WAV writers, and a separate `no_std` DSP core. Decoding and sample-rate conversion are not included.
+<div align="center">
+<p><strong>A stateful TrueSpeech encoder for Rust and native Windows applications.</strong></p>
 
-## Supported audio and packet format
+<p>
+  <a href="https://github.com/younsabood/truespeech"><img alt="Version 1.0.0" src="https://img.shields.io/badge/version-1.0.0-5b5bd6"></a>
+  <img alt="Rust 2024 edition" src="https://img.shields.io/badge/Rust-2024-orange">
+  <img alt="Windows x64 DLL" src="https://img.shields.io/badge/Windows-x64-0078D4">
+  <img alt="MIT or Apache 2.0" src="https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue">
+</p>
 
-| Property | Value |
+<p><code>8 kHz mono PCM</code> &nbsp;→&nbsp; <code>240 samples per frame</code> &nbsp;→&nbsp; <code>32-byte packet</code></p>
+</div>
+
+## Start here
+
+| Page | What you will find |
 | --- | --- |
-| Input | Mono signed 16-bit PCM at 8,000 samples per second |
-| Frame | 240 samples (30 ms) |
-| Encoded packet | 32 bytes (256 bits) |
-| Version value | `0x01000000` |
+| [Quick start](docs/quickstart.md) | Add the crate, encode frames, and write WAV output |
+| [API reference](docs/api.md) | Rust functions, outputs, errors, packet layout, and C ABI contracts |
+| [Architecture](docs/architecture.md) | Source structure and encoder stages |
+| [Windows integration](docs/windows-abi.md) | Build and call the DLL from C or C++ |
+| [no_std and WebAssembly](docs/wasm.md) | Build and embed the DSP core in a WASM application |
+| [Rendered diagrams](docs/diagrams/README.md) | File map, encoder flow, DLL lifecycle, and function map |
 
-Create one `TrueSpeechContext` per audio stream and reuse it across frames. The context retains predictor history. Use `reset()` to start a new independent stream.
+## What it does
 
-## Rust API
+| Capability | Description |
+| --- | --- |
+| Stateful Rust encoder | Reuse one `TrueSpeechContext` per audio stream to preserve predictor history. |
+| Fixed-size packet API | Encode 240 mono `i16` samples into 32 bytes without heap allocation. |
+| WAV output | Stream a TrueSpeech RIFF/WAV file or return it as a `Vec<u8>`. |
+| Windows C ABI | Use the `TrueSpeech_*` exports with the supplied header and import library. |
+| Shared DSP core | Build the same encoder implementation as a separate `no_std` crate. |
 
-When consuming a published release, add the crate to `Cargo.toml`:
+The encoder does not decode TrueSpeech or resample audio. Supply mono signed 16-bit PCM at 8 kHz.
+
+## Encoding path
+
+```mermaid
+flowchart LR
+    PCM["Mono PCM<br/>8 kHz · i16"] --> Frame["240-sample frame"]
+    Frame --> State["TrueSpeechContext<br/>predictor state"]
+    State --> Packet["32-byte packet"]
+    Packet --> Rust["Rust API"]
+    Packet --> DLL["Windows DLL / C ABI"]
+    PCM --> WAV["WAV helpers<br/>RIFF + delayed-tail flush"]
+```
+
+## Quick example
+
+Install directly from the public GitHub repository:
 
 ```toml
 [dependencies]
-truespeech = "1"
+truespeech = { git = "https://github.com/younsabood/truespeech" }
 ```
 
-Encode one frame into a caller-owned packet buffer:
+Encode one frame into caller-owned memory:
 
 ```rust
 use truespeech::{TrueSpeechContext, TRUESPEECH_FRAME_SAMPLES, TRUESPEECH_PACKET_BYTES};
@@ -30,60 +65,38 @@ use truespeech::{TrueSpeechContext, TRUESPEECH_FRAME_SAMPLES, TRUESPEECH_PACKET_
 let pcm = [0_i16; TRUESPEECH_FRAME_SAMPLES];
 let mut encoder = TrueSpeechContext::new();
 let mut packet = [0_u8; TRUESPEECH_PACKET_BYTES];
+
 encoder.encode_frame(&pcm, &mut packet);
+assert_eq!(packet.len(), 32);
 ```
 
-`encode_samples_into` encodes a complete PCM slice without allocating. It zero-pads a partial final frame. Its output size can be calculated with `TrueSpeechContext::encoded_packet_bytes` before allocating a buffer. `write_truespeech_wav` writes encoded packets to any `std::io::Write`; `encode_truespeech_wav` returns the complete WAV as a `Vec<u8>`.
-
-The runnable example creates a two-second tone and writes `speech.wav`:
+The [quick start](docs/quickstart.md) covers multi-frame input, buffer sizing, partial frames, and WAV output. The example runner accepts `-h`, `-help`, and `--help`:
 
 ```powershell
-cargo run --locked --release --example encode_wav -- speech.wav
+cargo run --locked --release --example encode_wav -- --help
 ```
 
-See the [API reference](docs/api.md) for function signatures, return values, errors, ABI requirements, and packet layout.
+## Build the Windows DLL
 
-The WAV example accepts `-h`, `-help`, and `--help` to print its usage.
-
-## Build a Windows distribution
-
-On Windows with the Rust MSVC toolchain installed, build and stage the x64 DLL:
+With the Rust MSVC toolchain installed, build a distributable x64 folder:
 
 ```powershell
 .\build-release.ps1
 ```
 
-This creates `dist\windows-x64\` containing the release DLL, MSVC import library, C header, C example, API documentation, build details, and SHA-256 checksums. For 32-bit Windows, install `i686-pc-windows-msvc` and pass it using `-Target i686-pc-windows-msvc`.
+The script stages `truespeech.dll`, its MSVC import library, the C header and example, API documentation, build details, and SHA-256 checksums in `dist\windows-x64\`. For C/C++ usage, follow the [Windows integration guide](docs/windows-abi.md).
 
-Build the library for the current Rust target:
+## Audio format
 
-```powershell
-cargo build --locked --release --lib
-```
+| Property | Value |
+| --- | --- |
+| Sample rate | 8,000 samples per second |
+| Channels | 1 (mono) |
+| PCM input | Signed 16-bit samples |
+| Frame duration | 30 ms (240 samples) |
+| Packet output | 32 bytes (256 bits) |
+| Codec version | `0x01000000` |
 
-To compile the native sample with MSVC after creating the distribution:
+## License
 
-```powershell
-cl /I dist\windows-x64 examples\use_dll.c dist\windows-x64\truespeech.dll.lib
-```
-
-Keep the DLL beside the resulting executable or on `PATH` when running it.
-
-## WAV output behavior
-
-The WAV helpers create a TrueSpeech RIFF file containing the extended `fmt` chunk, a `fact` chunk, and encoded `data`. A partial final frame is zero-padded. The WAV writer records the codec's 60-sample delay and emits a zero frame when needed to preserve the tail. The lower-level packet APIs do not add a delayed-tail flush frame; callers that need complete WAV duration should use a WAV helper.
-
-## Core and architecture
-
-The standalone `tsd32-encoder-core` workspace member builds the shared DSP source with `no_std`. A WASM build can be produced with:
-
-```powershell
-rustup target add wasm32-unknown-unknown
-cargo build --locked --release --manifest-path core/Cargo.toml --target wasm32-unknown-unknown
-```
-
-The [architecture guide](docs/architecture.md) explains the modules and data flow. Editable Mermaid sources for the file map, encoder algorithm, DLL lifecycle, and public and internal functions are in [docs/diagrams](docs/diagrams/README.md).
-
-## Scope and publishing
-
-This package encodes TrueSpeech; it does not decode it or implement the original decoder export. The manifest declares `MIT OR Apache-2.0`; add the corresponding license texts and confirm the source provenance grants those redistribution terms before publishing or redistributing the library.
+The package metadata declares `MIT OR Apache-2.0`. The repository does not include the canonical license text files yet; add them and confirm the source provenance before making a crates.io release.

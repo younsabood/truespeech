@@ -77,3 +77,11 @@ The frame path processes four 60-sample subframes. Internal helper names are imp
 | `pack_bitstream` | The eight packed words written as a 32-byte packet. |
 
 The arithmetic helpers `normalize_u32` and `wrapping_abs_i32` return normalized signed values used by the DSP search routines. `FrameParams` contains the quantized LPC, pitch, adaptive-gain, pulse-position, pulse-sign, and interpolation fields for the current frame.
+
+## Related documentation
+
+- [Quick start](quickstart.md)
+- [Architecture](architecture.md)
+- [Windows integration](windows-abi.md)
+- [no_std and WebAssembly](wasm.md)
+- [Rendered diagrams](diagrams/README.md)

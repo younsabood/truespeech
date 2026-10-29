@@ -53,3 +53,5 @@ The DLL lifecycle is `TrueSpeech_Init` → repeated `TrueSpeech_Encod` calls →
 ## Release outputs
 
 The Windows release script stages the DLL, MSVC import library, C header, C caller example, API reference, build details, and SHA-256 checksums. The standalone core can also be built for targets such as WebAssembly. Generated build and verification files are excluded from the crate package.
+
+Continue with the [quick start](quickstart.md), [API reference](api.md), [Windows guide](windows-abi.md), [WASM guide](wasm.md), or [rendered diagrams](diagrams/README.md).
