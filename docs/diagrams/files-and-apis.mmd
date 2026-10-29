@@ -1,0 +1,21 @@
+---
+title: "truespeech — Files and APIs"
+---
+flowchart TD
+  Cargo["Cargo.toml / Cargo.lock<br>Package metadata and workspace"] --> Lib["src/lib.rs<br>Rust API and DLL ABI"]
+  Lib --> Core["core/src/lib.rs<br>no_std wrapper"]
+  Core --> Encoder["src/encoder.rs<br>Shared DSP implementation"]
+  Lib --> Wav["src/wav.rs<br>TrueSpeech RIFF/WAV writer"]
+  Lib --> Api["docs/api.md<br>Signatures and return values"]
+  Encoder --> Context["TrueSpeechContext<br>encode_frame / reset"]
+  Encoder --> Bulk["encode_samples_into<br>Capacity check and final-frame padding"]
+  Wav --> Write["write_truespeech_wav<br>Streaming writes to Write"]
+  Wav --> Memory["encode_truespeech_wav<br>Complete in-memory WAV"]
+  Lib --> Dll["TrueSpeech_Init / Encod<br>Reset / Term / Version"]
+  Release["build-release.ps1<br>Windows release packaging"] --> Dist["dist/windows-x64/<br>DLL, import library, C header, checksums"]
+  classDef code fill:#dae8fc,stroke:#6c8ebf
+  classDef api fill:#d5e8d4,stroke:#82b366
+  classDef tool fill:#ffe6cc,stroke:#d79b00
+  class Cargo,Lib,Core,Encoder,Wav,Api code
+  class Context,Bulk,Write,Memory,Dll api
+  class Release,Dist tool

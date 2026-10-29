@@ -1,0 +1,9 @@
+[package]
+name = "tsd32-encoder-core"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+description = "no_std TrueSpeech encoder core shared with the truespeech library"
+
+[lib]
+crate-type = ["rlib"]

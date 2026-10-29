@@ -1,0 +1,34 @@
+[package]
+name = "truespeech"
+version = "1.0.0"
+edition = "2024"
+rust-version = "1.88"
+description = "Stateful Rust implementation of the TrueSpeech encoder with WAV and Windows DLL APIs"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/younsabood/truespeech"
+readme = "README.md"
+keywords = ["truespeech", "audio", "encoder", "codec", "wav"]
+categories = ["multimedia::audio", "encoding"]
+include = [
+    "Cargo.toml",
+    "src/lib.rs",
+    "src/encoder.rs",
+    "src/wav.rs",
+    "include/**",
+    "examples/**",
+    "docs/**",
+    "LICENSE*",
+    "NOTICE*",
+]
+autobins = false
+
+[workspace]
+members = ["core"]
+resolver = "2"
+
+[lib]
+name = "truespeech"
+crate-type = ["cdylib", "rlib"]
+
+[profile.release]
+overflow-checks = false

@@ -1,0 +1,52 @@
+---
+title: "truespeech — Function Map"
+---
+mindmap
+  root((TrueSpeech encoder functions))
+    src/lib.rs
+      TrueSpeech_Version
+      TrueSpeech_Init
+      TrueSpeech_Encod
+      TrueSpeech_Reset
+      TrueSpeech_Term
+    encoder.rs
+      Stateful Rust API
+        default
+        new
+        init_from_waveformat
+        version
+        reset
+        encoded_packet_bytes
+        encode_samples_into
+        encode_frame
+      Signal analysis
+        normalize_u32
+        wrapping_abs_i32
+        scale_and_shift_input
+        apply_hamming_window
+        apply_lag_window
+        compute_autocorrelation
+        levinson_durbin
+      LPC
+        quantize_reflection_coeffs
+        dequantize_reflection_coeffs
+        reflection_to_lpc
+        check_lpc_stability
+        interpolate_lpc_encoder
+        perceptual_weighting_filter
+        subtract_ringing
+        impulse_response_energy
+      Pitch and pulse search
+        open_loop_pitch_search
+        generate_adaptive_vector
+        adaptive_codebook_search
+        fixed_codebook_mpmlq_search
+      Encoder history and packet output
+        update_excitation_history
+        update_weighted_synthesis_history
+        pack_bitstream
+    wav.rs
+      write_truespeech_wav
+      encode_truespeech_wav
+      wav_sizes
+      TrueSpeechWavError fmt / source / from

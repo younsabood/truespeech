@@ -1,0 +1,20 @@
+---
+title: "truespeech — DLL and WAV Lifecycle"
+---
+sequenceDiagram
+  participant App as Application
+  participant ABI as DLL ABI
+  participant State as TrueSpeechContext
+  participant WAV as wav.rs
+  App->>ABI: TrueSpeech_Init(format)
+  ABI->>State: Create encoder state
+  App->>ABI: TrueSpeech_Encod(240 PCM samples)
+  ABI->>State: encode_frame
+  State-->>ABI: 32-byte packet
+  ABI-->>App: status + packet
+  App->>ABI: TrueSpeech_Reset when needed
+  App->>ABI: TrueSpeech_Term when finished
+  App->>WAV: write_truespeech_wav(samples)
+  WAV->>State: Encode consecutive frames
+  WAV->>WAV: pad partial frame + flush delay
+  WAV-->>App: RIFF / fmt / fact / data

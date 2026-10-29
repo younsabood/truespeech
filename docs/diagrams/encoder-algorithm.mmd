@@ -1,0 +1,32 @@
+---
+title: "truespeech — Frame Encoding Algorithm"
+config:
+  layout: elk
+---
+flowchart TD
+  In["PCM mono<br>240 × i16 @ 8 kHz"] --> Scale["scale_and_shift_input"]
+  Scale --> Win["apply_hamming_window"]
+  Win --> AC["compute_autocorrelation"]
+  AC --> LD["levinson_durbin"]
+  LD --> Quant["quantize_reflection_coeffs"]
+  Quant --> Stable{"check_lpc_stability"}
+  Stable -->|stable| LPC["reflection_to_lpc"]
+  Stable -->|unstable| ResetLpc["Select safe coefficients"]
+  ResetLpc --> LPC
+  LPC --> Interp["interpolate_lpc_encoder"]
+  Interp --> Weight["perceptual_weighting_filter"]
+  Weight --> Pitch["open_loop_pitch_search"]
+  Pitch --> Loop["Four subframes<br>60 samples each"]
+  Loop --> Adaptive["adaptive_codebook_search<br>generate_adaptive_vector"]
+  Adaptive --> Fixed["fixed_codebook_mpmlq_search<br>7 pulses"]
+  Fixed --> Hist["update_excitation_history<br>update_weighted_synthesis_history"]
+  Hist --> More{"More subframes?"}
+  More -->|yes| Adaptive
+  More -->|no| Pack["pack_bitstream"]
+  Pack --> Out["32 bytes<br>8 little-endian words"]
+  classDef dsp fill:#dae8fc,stroke:#6c8ebf
+  classDef decision fill:#fff2cc,stroke:#d6b656
+  classDef result fill:#d5e8d4,stroke:#82b366
+  class Scale,Win,AC,LD,Quant,LPC,ResetLpc,Interp,Weight,Pitch,Loop,Adaptive,Fixed,Hist dsp
+  class Stable,More decision
+  class Pack,Out result
