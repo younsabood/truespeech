@@ -63,14 +63,6 @@ try {
         "Files: truespeech.dll, truespeech.dll.lib, truespeech.h, use_dll.c, README.md, api.md"
     ) | Set-Content -LiteralPath (Join-Path $distribution "BUILD-INFO.txt") -Encoding utf8
 
-    Remove-Item -LiteralPath @(
-        (Join-Path $targetRelease "tsd32_rust64.dll"),
-        (Join-Path $targetRelease "tsd32_rust64.dll.lib"),
-        (Join-Path $distribution "tsd32_rust64.dll"),
-        (Join-Path $distribution "tsd32_rust64.dll.lib"),
-        (Join-Path $distribution "tsd32_rust64.h")
-    ) -Force -ErrorAction SilentlyContinue
-
     Get-ChildItem -LiteralPath $distribution -File |
         Where-Object { $_.Name -ne "SHA256SUMS.txt" } |
         Sort-Object Name |
