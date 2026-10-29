@@ -23,8 +23,9 @@ pub extern "system" fn TrueSpeech_Version() -> u32 {
 /// Creates an opaque encoder state for the PCM/TrueSpeech format pair.
 ///
 /// # Safety
-/// Both pointers must contain a readable format tag. The TrueSpeech format
-/// must contain at least eleven readable `i16` values.
+/// Each non-null pointer must contain a readable format tag. The TrueSpeech
+/// format must contain at least eleven readable `i16` values. The returned
+/// state must be released exactly once with [`TrueSpeech_Term`].
 #[unsafe(no_mangle)]
 pub unsafe extern "system" fn TrueSpeech_Init(
     input_format: *const i16,
@@ -59,7 +60,7 @@ pub unsafe extern "system" fn TrueSpeech_Init(
 /// `state` must be a live pointer returned by [`TrueSpeech_Init`]. `pcm` must
 /// reference 480 readable bytes; it may be unaligned. `packet` must reference
 /// eight writable `u32` values. The state, input, and output memory ranges must
-/// not overlap.
+/// not overlap. The state must not be used concurrently by another call.
 #[unsafe(no_mangle)]
 pub unsafe extern "system" fn TrueSpeech_Encod(
     state: *mut c_void,
@@ -93,7 +94,8 @@ pub unsafe extern "system" fn TrueSpeech_Encod(
 /// Clears the predictor state of an initialized encoder.
 ///
 /// # Safety
-/// `state` must be a live pointer returned by [`TrueSpeech_Init`].
+/// `state` must be a live pointer returned by [`TrueSpeech_Init`] and must not
+/// be used concurrently by another call.
 #[unsafe(no_mangle)]
 pub unsafe extern "system" fn TrueSpeech_Reset(state: *mut c_void) -> u32 {
     if state.is_null() {
@@ -107,7 +109,8 @@ pub unsafe extern "system" fn TrueSpeech_Reset(state: *mut c_void) -> u32 {
 ///
 /// # Safety
 /// `state` must be null or a live pointer returned by [`TrueSpeech_Init`],
-/// and must not be used after this call.
+/// and must not be used concurrently or after this call. Each non-null state
+/// must be released exactly once.
 #[unsafe(no_mangle)]
 pub unsafe extern "system" fn TrueSpeech_Term(state: *mut c_void) -> u32 {
     if !state.is_null() {

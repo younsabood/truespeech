@@ -51,6 +51,7 @@ The following items are re-exported from the crate root. DSP constants and `pack
 | `context.reset()` | Mutable context | Returns `()`. Clears predictor, excitation, and filter history. |
 | `TrueSpeechContext::encoded_packet_bytes(count)` | PCM sample count | `Some(bytes)` for the number of packets needed, rounding a partial final frame up; `None` if the byte count overflows `usize`. |
 | `context.encode_frame(pcm, packet)` | `&[i16; 240]`, `&mut [u8; 32]` | Returns `()`, fills one packet, and advances the encoder state by one frame. |
+| `context.encode_frame_to_packet(pcm)` | `&[i16; 240]` | Returns a 32-byte packet and advances the encoder state by one frame. |
 | `context.encode_samples_into(samples, output)` | PCM slice and caller-owned byte buffer | `Ok(bytes_written)` on success. Zero-pads the final partial frame. Returns `PacketLengthOverflow` or `OutputTooSmall { required, provided }`; a capacity error occurs before changing the state or output. This operation does not append a delay-flush frame. |
 | `pack_bitstream(params, output)` | `&FrameParams`, `&mut [u8; 32]` | Returns `()`, writes the parameter fields into one packet in codec byte order. |
 | `write_truespeech_wav(writer, samples)` | Any `Write`, PCM slice | `Ok(())` after writing a complete RIFF/WAV stream. Returns `TrueSpeechWavError` for a RIFF size overflow or writer error. It does not collect all packets in memory. |
@@ -87,7 +88,7 @@ The declarations and constants are in `include/truespeech.h`. Each function uses
 | `TrueSpeech_Reset(state)` | Live state pointer | Clears encoder history and returns `0`; null returns `1`. |
 | `TrueSpeech_Term(state)` | State created by `TrueSpeech_Init`, or null | Releases a non-null state and returns `0`. The pointer must not be reused after this call. |
 
-The state, PCM input, and packet output memory ranges passed to `TrueSpeech_Encod` must not overlap. Every non-null pointer must address the documented readable or writable storage. The C ABI cannot validate arbitrary pointer validity or buffer length.
+The state, PCM input, and packet output memory ranges passed to `TrueSpeech_Encod` must not overlap. Every non-null pointer must address the documented readable or writable storage. Use each state in only one call at a time, release it exactly once, and never reuse it after release. The C ABI cannot validate arbitrary pointer validity or buffer length.
 
 ## ⚙️ Encoder algorithm stages
 

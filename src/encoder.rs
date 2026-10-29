@@ -343,6 +343,20 @@ impl TrueSpeechContext {
         Ok(required_bytes)
     }
 
+    /// Encodes one frame and returns its 32-byte packet.
+    ///
+    /// Reuse the same context for consecutive frames in a stream. The input
+    /// must contain 240 mono, signed 16-bit PCM samples at 8 kHz.
+    ///
+    pub fn encode_frame_to_packet(
+        &mut self,
+        pcm_samples: &[i16; TRUESPEECH_FRAME_SAMPLES],
+    ) -> [u8; TRUESPEECH_PACKET_BYTES] {
+        let mut packet = [0; TRUESPEECH_PACKET_BYTES];
+        self.encode_frame(pcm_samples, &mut packet);
+        packet
+    }
+
     /// Corresponds to `TrueSpeech_Encod` (`0x73b42891`).
     /// Encodes one 240-sample mono PCM frame into a 32-byte packet.
     ///
@@ -1338,6 +1352,19 @@ pub fn pack_bitstream(params: &FrameParams, out: &mut [u8; 32]) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn returned_packets_match_buffer_api_across_frames() {
+        let mut returned = TrueSpeechContext::new();
+        let mut buffered = TrueSpeechContext::new();
+        for frame in 0..3 {
+            let samples =
+                std::array::from_fn(|i| ((i as i32 * 47 + frame * 311) % 8192 - 4096) as i16);
+            let mut expected = [0; TRUESPEECH_PACKET_BYTES];
+            buffered.encode_frame(&samples, &mut expected);
+            assert_eq!(returned.encode_frame_to_packet(&samples), expected);
+        }
+    }
 
     #[test]
     fn version_and_format_initialization_match_the_codec_contract() {

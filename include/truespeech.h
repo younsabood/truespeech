@@ -46,6 +46,7 @@ TRUESPEECH_API uint32_t TRUESPEECH_CALL TrueSpeech_Version(void);
  *
  * The encoder accepts mono signed 16-bit PCM at 8 kHz. The PCM descriptor's
  * remaining fields are the caller's responsibility and are not validated.
+ * Release each returned state exactly once with TrueSpeech_Term.
  */
 TRUESPEECH_API void *TRUESPEECH_CALL TrueSpeech_Init(
     const int16_t *input_format,
@@ -55,17 +56,20 @@ TRUESPEECH_API void *TRUESPEECH_CALL TrueSpeech_Init(
  * Encodes exactly 240 PCM samples to exactly 32 packet bytes. `pcm` may be
  * unaligned. `packet` must address at least eight writable uint32_t words.
  * State, input, and output memory ranges must not overlap. Returns 0 on
- * success and 1 when any pointer is NULL.
+ * success and 1 when any pointer is NULL. A state must not be used by
+ * concurrent calls.
  */
 TRUESPEECH_API uint32_t TRUESPEECH_CALL TrueSpeech_Encod(
     void *state,
     const int16_t *pcm,
     uint32_t *packet);
 
-/* Clears the predictor state; returns 0 on success, 1 for a NULL state. */
+/* Clears a live state; returns 0 on success, 1 for a NULL state.
+ * The state must not be used by concurrent calls. */
 TRUESPEECH_API uint32_t TRUESPEECH_CALL TrueSpeech_Reset(void *state);
 
-/* Releases a state created by TrueSpeech_Init. NULL is accepted. */
+/* Releases a live state created by TrueSpeech_Init exactly once. NULL is
+ * accepted. Do not use the state concurrently or after this call. */
 TRUESPEECH_API uint32_t TRUESPEECH_CALL TrueSpeech_Term(void *state);
 
 #ifdef __cplusplus

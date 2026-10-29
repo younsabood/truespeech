@@ -11,11 +11,11 @@
 
 ## Add the dependency
 
-Until the crate is published to crates.io, use the public Git repository:
+Add the published crate to your project:
 
 ```toml
 [dependencies]
-truespeech = { git = "https://github.com/younsabood/truespeech" }
+truespeech = "1.0.1"
 ```
 
 ## Encode a frame
