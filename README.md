@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://github.com/younsabood/truespeech"><img alt="GitHub stars" src="https://img.shields.io/github/stars/younsabood/truespeech?style=for-the-badge&amp;logo=github&amp;color=181717"></a>
-  <img alt="Version 1.0.1" src="https://img.shields.io/badge/version-1.0.1-6D5EF9?style=for-the-badge">
+  <img alt="Version 1.0.0" src="https://img.shields.io/badge/version-1.0.0-6D5EF9?style=for-the-badge">
   <img alt="Rust 2024" src="https://img.shields.io/badge/Rust-2024-E46F00?style=for-the-badge&amp;logo=rust&amp;logoColor=white">
   <img alt="Windows x64" src="https://img.shields.io/badge/Windows-x64-0078D4?style=for-the-badge&amp;logo=windows&amp;logoColor=white">
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-22C55E?style=for-the-badge"></a>
@@ -64,7 +64,7 @@ Add the published crate to your project:
 
 ```toml
 [dependencies]
-truespeech = "1.0.1"
+truespeech = "1.0.0"
 ```
 
 Encode one frame into a caller-owned packet buffer:
