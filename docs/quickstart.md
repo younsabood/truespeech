@@ -15,7 +15,7 @@ Add the published crate to your project:
 
 ```toml
 [dependencies]
-truespeech = "1.0.0"
+truespeech = "1.0.1"
 ```
 
 ## Encode a frame
